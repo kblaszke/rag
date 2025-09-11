@@ -1,0 +1,17 @@
+{{> header}}
+<div class="center">
+<h1>AI Client</h1>
+
+<form action="/" method="post">
+    <input type="hidden" name="conversationId" value="{{conversationId}}"/>
+    <div>
+        <textarea type="text" name="prompt" cols="80" rows="8"></textarea>
+    </div>
+  <input type="submit">
+</form>
+<div class="center">
+    {{answer}}
+</div>
+</div>
+
+{{> footer}}

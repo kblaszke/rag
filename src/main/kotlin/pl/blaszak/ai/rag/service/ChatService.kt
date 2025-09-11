@@ -1,0 +1,72 @@
+package pl.blaszak.ai.rag.service
+
+import org.springframework.ai.chat.messages.UserMessage
+import org.springframework.ai.chat.prompt.Prompt
+import org.springframework.ai.openai.OpenAiChatModel
+import org.springframework.ai.vectorstore.VectorStore
+import pl.blaszak.ai.rag.LocalDbMessageRepository
+import pl.blaszak.ai.rag.model.LocalDbRole
+import pl.blaszak.ai.rag.mergeCloserChunks
+import pl.blaszak.ai.rag.model.LocalDbMessage
+import pl.blaszak.ai.rag.toSearchResults
+import java.util.UUID
+
+class ChatService(
+    val vectorStore: VectorStore,
+    val localDbMessageRepository: LocalDbMessageRepository,
+    val chatModel: OpenAiChatModel,
+    val maxTokens: Int
+) {
+    companion object{
+        const val INIT_ASSISTANT_MESSAGE = "Wciel się w rolę oświeconego, bardzo inteligentnego i owcipnego mauczyciela Dhammy. Opowiaaj w pierwszej osobie jak byś był samym Ajahnem Brahmem"
+    }
+
+    fun initConversation(): String {
+        val conversationId = UUID.randomUUID().toString()
+        val localDbMessage = LocalDbMessage(null, conversationId, LocalDbRole.ASSISTANT, INIT_ASSISTANT_MESSAGE)
+        localDbMessageRepository.save<LocalDbMessage>(localDbMessage)
+        return conversationId
+    }
+
+    fun handle(
+        conversationId: String,
+        localDbRole: LocalDbRole,
+        question: String?
+    ) = if (question.isNullOrEmpty()) "" else {
+        val prompt = createPrompt(localDbRole, question)
+        val localDbMessage = LocalDbMessage(null, conversationId, localDbRole, prompt)
+        localDbMessageRepository.save<LocalDbMessage>(localDbMessage)
+        val messages = localDbMessageRepository.findByConversationId(conversationId)
+        val userMessages = messages.map { localDbMessage -> UserMessage.builder().text(localDbMessage.text).build() }
+        val response = chatModel.call(Prompt(userMessages))
+        val textResponse = response.result.output.text.toString()
+        val responseDbMessage = LocalDbMessage(null, conversationId, LocalDbRole.SYSTEM, textResponse)
+        localDbMessageRepository.save<LocalDbMessage>(responseDbMessage)
+        textResponse
+    }
+
+    private fun createPrompt(role: LocalDbRole, question: String): String {
+        return when(role) {
+            LocalDbRole.USER -> {
+                val similarDocuments = vectorStore.similaritySearch(question).map { it.toSearchResults() }
+                val fragments = similarDocuments.mergeCloserChunks()
+                    .joinToString(separator = "\n") { it.text }.take(maxTokens)
+                return createPrompt(question, fragments)
+            }
+            else -> {
+                question
+            }
+        }
+    }
+
+    private fun createPrompt(question: String, fragments: String) =
+        """Odpowiedz na pytanie na podstawie poniższych fragmentów
+
+Fragmenty:
+$fragments
+      
+Pytanie:
+$question
+        
+""".trimIndent()
+}

@@ -1,0 +1,13 @@
+package pl.blaszak.ai.rag
+
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.context.SpringBootTest
+
+@SpringBootTest
+class RagApplicationTests {
+
+	@Test
+	fun contextLoads() {
+	}
+
+}
