@@ -5,15 +5,14 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
-import pl.blaszak.ai.rag.model.LocalDbRole
 import pl.blaszak.ai.rag.service.ChatService
-import java.util.UUID
 
 @Controller
 class WwwController(val chatService: ChatService) {
 
     companion object {
         const val CONVERSATION_ID = "conversationId"
+        const val ATTACH_DOC = "attachDocumentation"
         const val PROMPT = "prompt"
         const val ANSWER = "answer"
     }
@@ -22,6 +21,7 @@ class WwwController(val chatService: ChatService) {
     fun index(): ModelAndView {
         val model = ModelAndView()
         model.addObject(CONVERSATION_ID, "")
+        model.addObject(ATTACH_DOC, "true")
         model.addObject(ANSWER, "")
         model.viewName = "index"
         return model
@@ -31,8 +31,9 @@ class WwwController(val chatService: ChatService) {
     fun postIndex(@RequestParam requestParams: Map<String, String>) : ModelAndView {
         val conversationId = if(requestParams[CONVERSATION_ID].isNullOrEmpty()) chatService.initConversation() else requestParams[CONVERSATION_ID].toString()
         val prompt = requestParams[PROMPT]
+        val attachDocumentation = requestParams[ATTACH_DOC].toBoolean()
         val model = ModelAndView()
-        val answer = chatService.handle(conversationId, LocalDbRole.USER, prompt)
+        val answer = chatService.handle(conversationId,prompt, attachDocumentation)
         model.addObject(ANSWER, answer)
         model.addObject(CONVERSATION_ID, conversationId)
         model.viewName = "index"

@@ -23,3 +23,4 @@ spring:
       hibernate:
         globally_quoted_identifiers: true
         globally_quoted_identifiers_skip_column_definitions: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
