@@ -1,5 +1,6 @@
 package pl.blaszak.ai.rag.service
 
+import kotlinx.coroutines.flow.flowOf
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.ai.openai.OpenAiChatModel
@@ -8,6 +9,7 @@ import pl.blaszak.ai.rag.LocalDbMessageRepository
 import pl.blaszak.ai.rag.model.LocalDbRole
 import pl.blaszak.ai.rag.mergeCloserChunks
 import pl.blaszak.ai.rag.model.LocalDbMessage
+import pl.blaszak.ai.rag.model.RagResponse
 import pl.blaszak.ai.rag.toSearchResults
 import java.util.UUID
 
@@ -29,11 +31,19 @@ class ChatService(
         return conversationId
     }
 
-    fun handle(
-        conversationId: String,
-        question: String?,
+    fun handleStream(
+        conversationId: String?,
+        question: String,
         attachDocumentation: Boolean
-    ) = if (question.isNullOrEmpty()) "" else {
+    // ) = Flux.just<RagResponse>(handle(conversationId, question, attachDocumentation))
+    ) = flowOf(RagResponse("tmpConversationId", "Blaszak is king!"))
+
+    fun handle(
+        conversationId: String?,
+        question: String,
+        attachDocumentation: Boolean
+    ): RagResponse {
+        val conversationId = if (conversationId.isNullOrEmpty()) initConversation() else conversationId
         val prompt = if (attachDocumentation) createPrompt(question) else question
         val localDbMessage = LocalDbMessage(conversationId, LocalDbRole.USER, prompt)
         localDbMessageRepository.save<LocalDbMessage>(localDbMessage)
@@ -43,7 +53,7 @@ class ChatService(
         val textResponse = response.result.output.text.toString()
         val responseDbMessage = LocalDbMessage(conversationId, LocalDbRole.SYSTEM, textResponse)
         localDbMessageRepository.save<LocalDbMessage>(responseDbMessage)
-        textResponse
+        return RagResponse(conversationId, textResponse)
     }
 
     private fun createPrompt(question: String): String {

@@ -4,7 +4,10 @@ import org.springframework.ai.openai.OpenAiChatModel
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import pl.blaszak.ai.rag.service.ChatService
+import org.springframework.web.servlet.config.annotation.CorsRegistry
+
 
 @Configuration
 class RagConfiguration {
@@ -20,4 +23,16 @@ class RagConfiguration {
         chatModel,
         2000
     )
+
+    @Bean
+    fun corsConfigurer(): WebMvcConfigurer {
+        return object : WebMvcConfigurer {
+            override fun addCorsMappings(registry: CorsRegistry) {
+                registry.addMapping("/**")
+                    .allowedOrigins("http://localhost:4200")
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("*")
+            }
+        }
+    }
 }

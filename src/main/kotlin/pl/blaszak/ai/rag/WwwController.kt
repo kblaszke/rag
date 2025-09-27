@@ -33,9 +33,9 @@ class WwwController(val chatService: ChatService) {
         val prompt = requestParams[PROMPT]
         val attachDocumentation = requestParams[ATTACH_DOC].toBoolean()
         val model = ModelAndView()
-        val answer = chatService.handle(conversationId,prompt, attachDocumentation)
-        model.addObject(ANSWER, answer)
-        model.addObject(CONVERSATION_ID, conversationId)
+        val answer = chatService.handle(conversationId,prompt!!, attachDocumentation)
+        model.addObject(ANSWER, answer.answer)
+        model.addObject(CONVERSATION_ID, answer.conversationId)
         model.viewName = "index"
         return model
     }
