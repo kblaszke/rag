@@ -1,7 +1,6 @@
-package pl.blaszak.ai.rag
+package pl.blaszak.ai.rag.model
 
 import org.springframework.ai.document.Document
-import pl.blaszak.ai.rag.model.SearchResult
 
 fun Document.toSearchResults(): SearchResult =
     SearchResult(
@@ -10,6 +9,11 @@ fun Document.toSearchResults(): SearchResult =
         fileName = (metadata["fileName"] ?: "unknown") as String,
         score = score ?: 0.toDouble()
     )
+
+fun List<Document>.createFragments() = this
+    .map { it.toSearchResults() }
+    .mergeCloserChunks()
+    .map { it.text }
 
 fun List<SearchResult>.mergeCloserChunks(): List<SearchResult> =
     sortedByDescending { it.score }.fold(mutableListOf()) { merged, element ->

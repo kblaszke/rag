@@ -6,3 +6,8 @@ data class SearchResult(
     val fileName: String,
     val score: Double
 )
+
+data class RagResponse (
+    val conversationId: String,
+    val answer: String,
+)

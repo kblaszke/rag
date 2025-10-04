@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import pl.blaszak.ai.rag.service.ChatService
 import org.springframework.web.servlet.config.annotation.CorsRegistry
+import pl.blaszak.ai.rag.repository.LocalDbMessageRepository
+import pl.blaszak.ai.rag.repository.LocalDbStatisticRepository
 
 
 @Configuration
@@ -16,10 +18,12 @@ class RagConfiguration {
     fun chatService(
         vectorStore: VectorStore,
         localDbMessageRepository: LocalDbMessageRepository,
+        localDbStatisticRepository: LocalDbStatisticRepository,
         chatModel : OpenAiChatModel
     ) = ChatService(
         vectorStore,
         localDbMessageRepository,
+        localDbStatisticRepository,
         chatModel,
         2000
     )

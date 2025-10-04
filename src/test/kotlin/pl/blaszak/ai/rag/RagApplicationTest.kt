@@ -8,6 +8,8 @@ import org.springframework.ai.openai.OpenAiChatModel
 import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import pl.blaszak.ai.rag.model.mergeCloserChunks
+import pl.blaszak.ai.rag.model.toSearchResults
 
 @SpringBootTest
 class RagApplicationTest() {

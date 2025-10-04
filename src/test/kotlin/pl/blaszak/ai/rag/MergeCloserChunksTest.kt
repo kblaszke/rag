@@ -3,6 +3,7 @@ package pl.blaszak.ai.rag
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import pl.blaszak.ai.rag.model.SearchResult
+import pl.blaszak.ai.rag.model.mergeCloserChunks
 
 class MergeCloserChunksTest {
 
