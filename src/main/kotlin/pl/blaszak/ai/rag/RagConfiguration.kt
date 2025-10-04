@@ -5,28 +5,27 @@ import org.springframework.ai.vectorstore.VectorStore
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-import pl.blaszak.ai.rag.service.ChatService
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import pl.blaszak.ai.rag.repository.LocalDbMessageRepository
 import pl.blaszak.ai.rag.repository.LocalDbStatisticRepository
+import pl.blaszak.ai.rag.service.chatService
 
 
 @Configuration
 class RagConfiguration {
 
     @Bean
-    fun chatService(
+    fun chatServiceBean(
         vectorStore: VectorStore,
         localDbMessageRepository: LocalDbMessageRepository,
         localDbStatisticRepository: LocalDbStatisticRepository,
         chatModel : OpenAiChatModel
-    ) = ChatService(
-        vectorStore,
-        localDbMessageRepository,
-        localDbStatisticRepository,
-        chatModel,
-        2000
-    )
+    ) = chatService {
+        this.vectorStore = vectorStore
+        this.localDbMessageRepository = localDbMessageRepository
+        this.localDbStatisticRepository = localDbStatisticRepository
+        this.chatModel = chatModel
+    }
 
     @Bean
     fun corsConfigurer(): WebMvcConfigurer {
