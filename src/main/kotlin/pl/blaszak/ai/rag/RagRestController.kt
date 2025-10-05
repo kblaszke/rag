@@ -25,7 +25,7 @@ class RagRestController(val chatService: ChatService) {
         @RequestParam conversationId: String?,
         @RequestParam message: String
     ): Flow<ServerSentEvent<RagResponse>> {
-        logger.info("ragRequest: ${conversationId}, ${message}")
+        logger.info("ragRequest: ${conversationId}: ${message}")
         return chatService.handleStream(conversationId, message)
             .map { chunk -> ServerSentEvent.builder(chunk).build() }
             .onCompletion {  }

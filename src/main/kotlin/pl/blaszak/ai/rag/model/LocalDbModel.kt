@@ -51,7 +51,8 @@ class LocalDbStatistic(
     @Column(name = "context")
     var contexts: List<String>,
     var answer: String,
+    var createdAt: LocalDateTime = LocalDateTime.now()
     ) {
-    constructor() : this(null, "", emptyList(), "")
-    constructor(question: String, contexts: List<String>, answer: String) : this(null, question, contexts, answer)
+    constructor() : this(null, "", emptyList(), "", LocalDateTime.now())
+    constructor(question: String, contexts: List<String>, answer: String) : this(null, question, contexts, answer, LocalDateTime.now())
 }

@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS local_db_message (
 CREATE TABLE IF NOT EXISTS local_db_statistic (
     id BIGSERIAL PRIMARY KEY,
     question TEXT NOT NULL,
-    answer TEXT NOT NULL
+    answer TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS local_db_statistic_context (
